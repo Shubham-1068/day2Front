@@ -1,31 +1,14 @@
 import { useEffect, useState } from "react";
-import bcrypt from "bcryptjs";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
+
 function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLog, setIsLog] = useState(false);
 
   useEffect(() => {
-    const usersInStorage = localStorage.getItem("users");
-    if (!usersInStorage) {
-      const plainUsers = [
-        { name: "hit", password: "tigger" },
-        { name: "admin", password: "computer" },
-        { name: "room", password: "family" },
-        { name: "rockman", password: "danielle" },
-        { name: "summer", password: "forever" },
-        { name: "root", password: "root" },
-      ];
-      const hashedUsers = plainUsers.map((user) => ({
-        name: user.name,
-        hash: bcrypt.hashSync(user.password, 10),
-      }));
-      localStorage.setItem("users", JSON.stringify(hashedUsers));
-    }
-
     const isLogged = localStorage.getItem("isLog") === "true";
     const storedUser = localStorage.getItem("username");
     if (isLogged && storedUser) {
@@ -34,20 +17,33 @@ function App() {
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const matched = users.find(
-      (user) => user.name === username && bcrypt.compareSync(password, user.hash)
-    );
 
-    if (matched) {
-      setIsLog(true);
-      localStorage.setItem("isLog", "true");
-      localStorage.setItem("username", username);
-      toast.success("Login successful!");
-    } else {
-      toast.error("Invalid username or password");
+    try {
+      const response = await fetch("https://day2back.onrender.com/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: username, password }),
+      });
+
+      const data = await response.json();
+
+      console.log(data);
+
+      if (response.ok) {
+        setIsLog(true);
+        localStorage.setItem("isLog", "true");
+        localStorage.setItem("username", username);
+        toast.success(data.message || "Login successful!");
+      } else {
+        toast.error(data.message || "Invalid username or password");
+      }
+    } catch (error) {
+      toast.error("Server error. Try again later.");
+      console.error("Login error:", error);
     }
   };
 
