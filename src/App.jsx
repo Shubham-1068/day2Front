@@ -77,6 +77,8 @@ function App() {
               <p>📌 Hackathon – May 5th</p>
               <p>📌 Workshop – May 5th</p>
               <p>📌 Weekly Meeting – Fridays 5 PM</p>
+              <p>📌 Your flag is: {`ISTEHITSC{Brut3F0rc3_Succ3ss}`}</p>
+              <p>Enjoy the day!!</p>
             </div>
           </div>
         </div>
